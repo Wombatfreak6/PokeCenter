@@ -1,0 +1,152 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f8fc;
+  color: #1f2937;
+  padding: 24px;
+}
+
+/* HEADER STYLES */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Pushes Search bar to the right */
+  padding: 14px 18px;
+  background-color: white;        /* Clean white background */
+  border-radius: 20px;            /* Matches the card style */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  margin-bottom: 24px;            /* Space below header */
+  flex-wrap: wrap;                /* Allows wrapping on very small screens */
+  gap: 15px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pokeball-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.top-bar h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/* SEARCH BAR STYLES */
+#search-input {
+  padding: 10px 15px;
+  width: 250px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background-color: #f3f4f6;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+#search-input:focus {
+  background-color: #ffffff;
+  border-color: #3b82f6; /* Blue border on focus */
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+/* LAYOUT GRID */
+.pokedex-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.pokedex-container.show-details {
+  grid-template-columns: 3fr 1.3fr;
+}
+
+/* POKEMON CARDS GRID */
+.pokemon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.08);
+}
+
+.card img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.card h3 {
+  font-size: 16px;
+  margin-top: 8px;
+  text-transform: capitalize; /* Makes pokemon names Capitalized */
+}
+
+.card p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* DETAILS SIDEBAR */
+.pokemon-details {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+  position: sticky;
+  top: 24px;
+  height: fit-content;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.details-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.details-header h2 {
+  text-transform: capitalize;
+  margin-bottom: 10px;
+}
+
+.details-info p {
+  margin: 5px 0;
+  line-height: 1.4;
+}
+
+.stats {
+  margin-top: 20px;
+}
+
+.stats h3 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
