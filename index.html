@@ -3,31 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokédex</title>
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="256x256"
-    href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-  />
+  <title>POKÉCENTRE — Retro Pokédex</title>
+  <meta name="description" content="A retro GBA-style Pokédex explorer. Search, filter, and browse all 151 Generation I Pokémon with pixel-perfect sprites." />
+  <link rel="icon" type="image/png" sizes="256x256"
+    href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  
-  <header class="top-bar">
-    <div class="logo-container">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="Pokeball" class="pokeball-icon"/>
-      <h1>Pokédex</h1>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-brand">
+      <img
+        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+        alt="Pokéball"
+        class="navbar-logo"
+      />
+      <span class="brand-name">POKÉCENTRE</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" id="nav-dex">POKÉDEX</a></li>
+      <li><a href="#" class="nav-link" id="nav-about">GEN I</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="main-wrapper">
+
+    <!-- ── SEARCH + CONTROLS BAR ── -->
+    <section class="controls-bar" aria-label="Search and controls">
+      <div class="search-wrapper">
+        <span class="search-icon" aria-hidden="true">✦</span>
+        <input
+          type="text"
+          id="search-input"
+          class="search-bar"
+          placeholder="SEARCH POKÉMON..."
+          autocomplete="off"
+          aria-label="Search Pokémon by name or number"
+        />
+      </div>
+      <div class="controls-right">
+        <label for="sort-select" class="sr-only">Sort by</label>
+        <select id="sort-select" class="sort-dropdown" aria-label="Sort Pokémon">
+          <option value="id-asc">DEX # ASC</option>
+          <option value="id-desc">DEX # DESC</option>
+          <option value="name-asc">NAME A→Z</option>
+          <option value="name-desc">NAME Z→A</option>
+        </select>
+        <span class="result-count" id="result-count" aria-live="polite">— / —</span>
+      </div>
+    </section>
+
+    <!-- ── FILTER PANEL ── -->
+    <section class="filter-panel" aria-label="Filter Pokémon">
+      <div class="filter-section">
+        <p class="filter-label">TYPE</p>
+        <div class="filter-btn-group" id="type-filters" role="group" aria-label="Filter by type">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="filter-section">
+        <p class="filter-label">BASE STAT TOTAL</p>
+        <div class="stat-range-group">
+          <label for="stat-min" class="stat-range-label">MIN <span id="stat-min-val">0</span></label>
+          <input type="range" id="stat-min" class="stat-slider" min="0" max="720" value="0" step="5" aria-label="Minimum base stat total" />
+          <label for="stat-max" class="stat-range-label">MAX <span id="stat-max-val">720</span></label>
+          <input type="range" id="stat-max" class="stat-slider" min="0" max="720" value="720" step="5" aria-label="Maximum base stat total" />
+        </div>
+      </div>
+      <button class="reset-btn" id="reset-filters" aria-label="Reset all filters">⟳ RESET</button>
+    </section>
+
+    <!-- ── POKEMON GRID ── -->
+    <section class="pokemon-grid" id="pokemon-grid" aria-label="Pokémon cards">
+      <!-- Cards injected by JS -->
+    </section>
+
+    <!-- ── LOADING / EMPTY STATE ── -->
+    <div class="loader-wrapper" id="loader" aria-live="polite" aria-busy="true">
+      <div class="loader-spinner" aria-hidden="true"></div>
+      <p class="loader-text">LOADING POKÉDEX…</p>
     </div>
 
-    <input type="text" id="search-input" placeholder="Search Pokémon..." />
-  </header>
+    <div class="empty-state hidden" id="empty-state" role="status">
+      <p class="empty-icon">✗</p>
+      <p class="empty-text">NO POKÉMON FOUND</p>
+    </div>
 
-  <main class="pokedex-container">
-    <section class="pokemon-grid"></section>
+    <!-- ── LOAD MORE ── -->
+    <div class="load-more-wrapper hidden" id="load-more-wrapper">
+      <button class="load-more-btn" id="load-more-btn">▼ LOAD MORE</button>
+    </div>
 
-    <aside class="pokemon-details hidden"></aside>
   </main>
+
+  <!-- ═══ DETAIL MODAL ═══ -->
+  <div class="modal-overlay hidden" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-pokemon-name">
+    <div class="modal-card" id="modal-card">
+      <button class="modal-close" id="modal-close" aria-label="Close detail panel">✕</button>
+      <div class="modal-content" id="modal-content">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
 
   <script src="./script.js"></script>
 </body>
