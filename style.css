@@ -7,13 +7,70 @@
 
 /* ── CSS Custom Properties ── */
 :root {
-  --gold:    #f5c400;
-  --cyan:    #00e5ff;
-  --red:     #e8411a;
-  --bg:      #0d0f1a;
-  --card-bg: #111428;
-  --border:  #f5c400;
-  --text:    #ffffff;
+  /* ── Brand ─────────────────────── */
+  --gold:           #f5c400;
+  --cyan:           #00e5ff;
+  --red:            #e8411a;
+
+  /* ── Backgrounds ───────────────── */
+  --bg:             #0d0f1a;
+  --card-bg:        #0d0f1e;
+  --surface:        #111428;
+
+  /* ── Borders ───────────────────── */
+  --border:         #f5c400;
+
+  /* ── Text ──────────────────────── */
+  --text:           #ffffff;
+  --text-dim:       rgba(255, 255, 255, 0.55);
+
+  /* ── Gold opacity variants ─────── */
+  --gold-75:        rgba(245, 196, 0, 0.75);
+  --gold-65:        rgba(245, 196, 0, 0.65);
+  --gold-40:        rgba(245, 196, 0, 0.40);
+  --gold-30:        rgba(245, 196, 0, 0.30);
+  --gold-20:        rgba(245, 196, 0, 0.20);
+  --gold-15:        rgba(245, 196, 0, 0.15);
+  --gold-10:        rgba(245, 196, 0, 0.10);
+  --gold-08:        rgba(245, 196, 0, 0.08);
+  --gold-05:        rgba(245, 196, 0, 0.05);
+
+  /* ── Cyan opacity variants ─────── */
+  --cyan-50:        rgba(0, 229, 255, 0.50);
+  --cyan-60:        rgba(0, 229, 255, 0.60);
+
+  /* ── Modal ─────────────────────── */
+  --modal-overlay:  rgba(13, 15, 26, 0.88);
+}
+
+/* ── LIGHT THEME ─────────────────────────────── */
+[data-theme="light"] {
+  --gold:           #a06800;
+  --cyan:           #005f88;
+  --red:            #c03010;
+
+  --bg:             #f0ead2;
+  --card-bg:        #faf5e4;
+  --surface:        #e8e0c8;
+
+  --border:         #a06800;
+  --text:           #0d0f1e;
+  --text-dim:       rgba(13, 15, 30, 0.55);
+
+  --gold-75:        rgba(160, 104, 0, 0.80);
+  --gold-65:        rgba(160, 104, 0, 0.70);
+  --gold-40:        rgba(160, 104, 0, 0.35);
+  --gold-30:        rgba(160, 104, 0, 0.28);
+  --gold-20:        rgba(160, 104, 0, 0.20);
+  --gold-15:        rgba(160, 104, 0, 0.14);
+  --gold-10:        rgba(160, 104, 0, 0.10);
+  --gold-08:        rgba(160, 104, 0, 0.07);
+  --gold-05:        rgba(160, 104, 0, 0.05);
+
+  --cyan-50:        rgba(0, 95, 136, 0.45);
+  --cyan-60:        rgba(0, 95, 136, 0.55);
+
+  --modal-overlay:  rgba(240, 234, 210, 0.92);
 }
 
 /* ── Reset ── */
@@ -37,6 +94,36 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Smooth theme transitions */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.25s;
+  transition-timing-function: ease;
+}
+
+/* But don't override existing specific transitions – reset for animated elements */
+.pokemon-card, .pokemon-card img, .shiny-btn,
+.filter-toggle-btn, .theme-toggle-btn, .custom-dropdown,
+.custom-dropdown-arrow, .filter-toggle-btn .toggle-arrow,
+.load-more-btn, .reset-btn, .filter-btn, .stat-bar-fill,
+.modal-stat-fill, .sort-dropdown {
+  transition: unset;
+}
+/* Restore per-component transitions */
+.pokemon-card            { transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.25s ease, border-color 0.25s ease; }
+.pokemon-card img        { transition: transform 0.2s ease; }
+.shiny-btn               { transition: background 0.12s, color 0.12s, box-shadow 0.12s, border-color 0.25s; }
+.filter-toggle-btn       { transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.25s; }
+.theme-toggle-btn        { transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.25s; }
+.custom-dropdown         { transition: box-shadow 0.15s, background-color 0.25s, border-color 0.25s; }
+.custom-dropdown-arrow   { transition: transform 0.2s ease; }
+.filter-toggle-btn .toggle-arrow { transition: transform 0.25s ease; }
+.load-more-btn           { transition: background 0.15s, color 0.15s, box-shadow 0.15s; }
+.reset-btn               { transition: background 0.1s, color 0.1s; }
+.filter-btn              { transition: background 0.1s, color 0.1s; }
+.stat-bar-fill           { transition: width 0.4s ease; }
+.modal-stat-fill         { transition: width 0.4s ease; }
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -49,7 +136,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--gold); }
-::-webkit-scrollbar-thumb:hover { background: #ffd84d; }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
 
 /* ══════════════════════════════════════════════
    NAVBAR
@@ -99,13 +186,37 @@ body {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-dim);
   transition: color 0.15s;
 }
 
 .nav-link:hover,
 .nav-link.active {
   color: var(--gold);
+}
+
+/* ── Theme Toggle Button ── */
+.theme-toggle-btn {
+  background: transparent;
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--gold-15);
+  box-shadow: 0 0 8px var(--gold-30);
 }
 
 /* ══════════════════════════════════════════════
@@ -149,7 +260,7 @@ body {
   background: var(--bg);
   border: 2px solid var(--gold);
   border-radius: 0;
-  color: #ffffff;
+  color: var(--text);
   font-family: "Press Start 2P", monospace;
   font-size: 11px;
   padding: 14px 20px 14px 44px;
@@ -159,11 +270,11 @@ body {
 }
 
 .search-bar::placeholder {
-  color: rgba(245, 196, 0, 0.45);
+  color: var(--gold-40);
 }
 
 .search-bar:focus {
-  box-shadow: 0 0 12px rgba(245, 196, 0, 0.4);
+  box-shadow: 0 0 12px var(--gold-40);
 }
 
 .controls-right {
@@ -195,7 +306,7 @@ body {
 
 .custom-dropdown:focus,
 .custom-dropdown.open {
-  box-shadow: 0 0 10px rgba(245, 196, 0, 0.4);
+  box-shadow: 0 0 10px var(--gold-40);
 }
 
 .custom-dropdown-value {
@@ -220,12 +331,12 @@ body {
   top: calc(100% + 4px);
   left: -2px;
   right: -2px;
-  background: #0d0f1e;
+  background: var(--card-bg);
   border: 2px solid var(--gold);
   border-radius: 2px;
   list-style: none;
   z-index: 300;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 12px rgba(245, 196, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px var(--gold-30);
   overflow: hidden;
   animation: dropdownSlide 0.18s ease-out;
 }
@@ -243,12 +354,12 @@ body {
   padding: 11px 14px;
   font-family: "Press Start 2P", monospace;
   font-size: 8px;
-  color: rgba(245, 196, 0, 0.65);
+  color: var(--gold-65);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid rgba(245, 196, 0, 0.1);
+  border-bottom: 1px solid var(--gold-10);
   transition: background 0.1s, color 0.1s;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -276,7 +387,7 @@ body {
 }
 
 .custom-dropdown-item:hover {
-  background: rgba(245, 196, 0, 0.1);
+  background: var(--gold-10);
   color: var(--gold);
 }
 
@@ -310,8 +421,7 @@ body {
 }
 
 .filter-toggle-btn:hover {
-  background: rgba(245, 196, 0, 0.12);
-  box-shadow: 0 0 8px rgba(245, 196, 0, 0.3);
+  box-shadow: 0 0 8px var(--gold-40);
 }
 
 .filter-toggle-btn.active {
@@ -333,7 +443,7 @@ body {
    ══════════════════════════════════════════════ */
 .filter-panel {
   border: 2px solid var(--gold);
-  background: var(--card-bg);
+  background: var(--surface);
   padding: 20px;
   margin-bottom: 24px;
   display: flex;
@@ -391,7 +501,7 @@ body {
 }
 
 .filter-btn:hover {
-  background: rgba(245, 196, 0, 0.15);
+  background: var(--gold-15);
 }
 
 .filter-btn.active {
@@ -416,7 +526,7 @@ body {
 .stat-slider {
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(245, 196, 0, 0.2);
+  background: var(--gold-20);
   height: 4px;
   border-radius: 0;
   outline: none;
@@ -498,7 +608,7 @@ body {
    POKÉMON CARD
    ══════════════════════════════════════════════ */
 .pokemon-card {
-  background: #0d0f1e;
+  background: var(--card-bg);
   border: 2.5px solid var(--gold);
   border-radius: 2px;
   padding: 10px 10px 12px 10px;
@@ -518,7 +628,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(245, 196, 0, 0.08);
+  border: 1px solid var(--gold-08);
   pointer-events: none;
 }
 
@@ -529,7 +639,7 @@ body {
 
 .pokemon-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 24px rgba(245, 196, 0, 0.5), 0 0 6px var(--gold), inset 0 0 20px rgba(245, 196, 0, 0.04);
+  box-shadow: 0 0 24px var(--gold-40), 0 0 6px var(--gold), inset 0 0 20px var(--gold-05);
 }
 
 /* Dex number — top left */
@@ -538,7 +648,7 @@ body {
   top: 10px;
   left: 12px;
   font-size: 8px;
-  color: rgba(245, 196, 0, 0.75);
+  color: var(--gold-75);
   font-family: "Press Start 2P", monospace;
   letter-spacing: 0.5px;
 }
@@ -552,7 +662,7 @@ body {
   height: 26px;
   border: 2px solid var(--gold);
   background: var(--gold);
-  color: #0e1128;
+  color: var(--bg);
   font-size: 11px;
   cursor: pointer;
   display: flex;
@@ -564,14 +674,14 @@ body {
 }
 
 .shiny-btn:hover {
-  box-shadow: 0 0 8px rgba(245, 196, 0, 0.8);
+  box-shadow: 0 0 8px var(--gold-75);
 }
 
 .shiny-btn.shiny-active {
   background: var(--cyan);
   border-color: var(--cyan);
-  color: #0e1128;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+  color: var(--bg);
+  box-shadow: 0 0 10px var(--cyan-60);
 }
 
 /* Sprite area */
@@ -635,7 +745,7 @@ body {
 /* Stat bar */
 .stat-bar {
   height: 4px;
-  background: rgba(245, 196, 0, 0.15);
+  background: var(--gold-15);
   border-radius: 0;
   overflow: hidden;
   margin-top: 2px;
@@ -696,7 +806,7 @@ body {
 .loader-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(245, 196, 0, 0.2);
+  border: 4px solid var(--gold-20);
   border-top-color: var(--gold);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
@@ -728,14 +838,14 @@ body {
 
 .empty-icon {
   font-size: 40px;
-  color: rgba(245, 196, 0, 0.4);
+  color: var(--gold-40);
   margin-bottom: 16px;
   font-family: monospace;
 }
 
 .empty-text {
   font-size: 12px;
-  color: rgba(245, 196, 0, 0.7);
+  color: var(--gold-65);
   letter-spacing: 2px;
 }
 
@@ -764,7 +874,7 @@ body {
 .load-more-btn:hover {
   background: var(--gold);
   color: var(--bg);
-  box-shadow: 0 0 12px rgba(245, 196, 0, 0.5);
+  box-shadow: 0 0 12px var(--gold-40);
 }
 
 /* ══════════════════════════════════════════════
@@ -773,7 +883,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13, 15, 26, 0.88);
+  background: var(--modal-overlay);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -789,7 +899,7 @@ body {
 }
 
 .modal-card {
-  background: var(--card-bg);
+  background: var(--surface);
   border: 2px solid var(--gold);
   border-radius: 4px;
   padding: 28px;
@@ -798,7 +908,7 @@ body {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 0 40px rgba(245, 196, 0, 0.25), 0 0 8px var(--gold);
+  box-shadow: 0 0 40px var(--gold-30), 0 0 8px var(--gold);
   animation: modalCardIn 0.15s ease-out;
 }
 
@@ -869,7 +979,7 @@ body {
 
 .modal-sprite-label {
   font-size: 8px;
-  color: rgba(245, 196, 0, 0.6);
+  color: var(--gold-65);
   text-transform: uppercase;
 }
 
@@ -891,7 +1001,7 @@ body {
 
 .modal-divider {
   border: none;
-  border-top: 1px solid rgba(245, 196, 0, 0.3);
+  border-top: 1px solid var(--gold-30);
   margin: 16px 0;
 }
 
@@ -912,22 +1022,22 @@ body {
 }
 
 .modal-info-item {
-  background: rgba(245, 196, 0, 0.05);
-  border: 1px solid rgba(245, 196, 0, 0.2);
+  background: var(--gold-05);
+  border: 1px solid var(--gold-20);
   padding: 10px;
   border-radius: 2px;
 }
 
 .modal-info-label {
   font-size: 8px;
-  color: rgba(245, 196, 0, 0.7);
+  color: var(--gold-65);
   margin-bottom: 4px;
   text-transform: uppercase;
 }
 
 .modal-info-value {
   font-size: 9px;
-  color: #fff;
+  color: var(--text);
   text-transform: capitalize;
 }
 
@@ -941,7 +1051,7 @@ body {
 
 .modal-stat-name {
   font-size: 7px;
-  color: rgba(245, 196, 0, 0.8);
+  color: var(--gold-75);
   text-transform: uppercase;
   width: 90px;
   flex-shrink: 0;
@@ -959,7 +1069,7 @@ body {
 .modal-stat-bar {
   flex: 1;
   height: 6px;
-  background: rgba(245, 196, 0, 0.15);
+  background: var(--gold-15);
   border-radius: 0;
   overflow: hidden;
 }
@@ -978,7 +1088,7 @@ body {
 }
 
 .ability-tag {
-  border: 1px solid rgba(0, 229, 255, 0.5);
+  border: 1px solid var(--cyan-50);
   color: var(--cyan);
   font-size: 8px;
   padding: 5px 10px;

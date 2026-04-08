@@ -30,6 +30,8 @@ const modalContent     = document.getElementById("modal-content");
 const modalClose       = document.getElementById("modal-close");
 const filterPanel      = document.getElementById("filter-panel");
 const filterToggleBtn  = document.getElementById("filter-toggle-btn");
+const themeToggleBtn   = document.getElementById("theme-toggle-btn");
+const themeToggleIcon  = document.getElementById("theme-toggle-icon");
 
 // ── State ─────────────────────────────────────
 let allPokemon      = [];   // full dataset, fetched once
@@ -467,6 +469,32 @@ filterToggleBtn.addEventListener("click", () => {
   filterToggleBtn.setAttribute("aria-expanded", String(filtersVisible));
   // Swap button label arrow direction via .active class
   filterToggleBtn.classList.toggle("active", !filtersVisible);
+});
+
+// ── Theme toggle ────────────────────────────────
+const LIGHT_THEME   = "light";
+const STORAGE_KEY   = "pokecenter-theme";
+
+function applyTheme(theme) {
+  if (theme === LIGHT_THEME) {
+    document.documentElement.setAttribute("data-theme", LIGHT_THEME);
+    themeToggleIcon.textContent = "DARK";
+    themeToggleBtn.title = "Switch to dark mode";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    themeToggleIcon.textContent = "LIGHT";
+    themeToggleBtn.title = "Switch to light mode";
+  }
+  localStorage.setItem(STORAGE_KEY, theme);
+}
+
+// Load saved preference
+const savedTheme = localStorage.getItem(STORAGE_KEY) || "dark";
+applyTheme(savedTheme);
+
+themeToggleBtn.addEventListener("click", () => {
+  const isLight = document.documentElement.getAttribute("data-theme") === LIGHT_THEME;
+  applyTheme(isLight ? "dark" : LIGHT_THEME);
 });
 
 // ── Bootstrap ─────────────────────────────────
