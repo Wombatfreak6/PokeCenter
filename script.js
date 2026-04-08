@@ -214,19 +214,23 @@ function createCard(pokemon, index) {
   card.innerHTML = `
     <span class="dex-number">#${String(pokemon.id).padStart(3, "0")}</span>
     <button class="shiny-btn" id="shiny-${pokemon.id}" title="Toggle shiny" aria-label="Toggle shiny sprite for ${pokemon.name}" aria-pressed="false">✦</button>
-    <img
-      src="${defaultSprite}"
-      alt="${pokemon.name}"
-      id="sprite-${pokemon.id}"
-      data-default="${defaultSprite}"
-      data-shiny="${shinySprite}"
-    />
-    <p class="pokemon-name">${pokemon.name}</p>
-    <div class="stat-bar" title="Base Stat Total: ${bst}">
-      <div class="stat-bar-fill" style="width: ${pct}%; background: ${TYPE_COLORS[primaryType] || "var(--gold)"}"></div>
+    <div class="card-sprite-area">
+      <img
+        src="${defaultSprite}"
+        alt="${pokemon.name}"
+        id="sprite-${pokemon.id}"
+        data-default="${defaultSprite}"
+        data-shiny="${shinySprite}"
+      />
     </div>
-    <div class="type-badges">
-      ${types.map(t => `<span class="type-badge type-${t}">${t}</span>`).join("")}
+    <div class="card-info">
+      <p class="pokemon-name">${pokemon.name}</p>
+      <div class="type-badges">
+        ${types.map(t => `<span class="type-badge type-${t}">${t}</span>`).join("")}
+      </div>
+      <div class="stat-bar" title="Base Stat Total: ${bst}">
+        <div class="stat-bar-fill" style="width: ${pct}%; background: ${TYPE_COLORS[primaryType] || "var(--gold)"}"></div>
+      </div>
     </div>
   `;
 

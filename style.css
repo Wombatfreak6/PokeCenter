@@ -331,55 +331,76 @@ body {
 .pokemon-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
+  .pokemon-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 1050px) {
   .pokemon-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   .pokemon-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .pokemon-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 360px) {
+  .pokemon-grid { grid-template-columns: repeat(1, 1fr); }
 }
 
 /* ══════════════════════════════════════════════
    POKÉMON CARD
    ══════════════════════════════════════════════ */
 .pokemon-card {
-  background: var(--card-bg);
-  border: 2px solid var(--gold);
-  border-radius: 4px;
-  padding: 12px;
+  background: #0d0f1e;
+  border: 2.5px solid var(--gold);
+  border-radius: 2px;
+  padding: 10px 10px 12px 10px;
   position: relative;
-  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  transition: transform 0.18s, box-shadow 0.18s;
   cursor: pointer;
-  animation: cardFadeIn 0.2s ease-out forwards;
+  animation: cardFadeIn 0.25s ease-out forwards;
   opacity: 0;
+  overflow: hidden;
+}
+
+/* Subtle inner glow on edges */
+.pokemon-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(245, 196, 0, 0.08);
+  pointer-events: none;
 }
 
 @keyframes cardFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .pokemon-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0 16px rgba(245, 196, 0, 0.53), 0 0 4px var(--gold);
+  transform: translateY(-5px);
+  box-shadow: 0 0 24px rgba(245, 196, 0, 0.5), 0 0 6px var(--gold), inset 0 0 20px rgba(245, 196, 0, 0.04);
 }
 
 /* Dex number — top left */
 .dex-number {
   position: absolute;
-  top: 8px;
-  left: 10px;
-  font-size: 9px;
-  color: var(--gold);
-  opacity: 0.8;
+  top: 10px;
+  left: 12px;
+  font-size: 8px;
+  color: rgba(245, 196, 0, 0.75);
   font-family: "Press Start 2P", monospace;
+  letter-spacing: 0.5px;
 }
 
 /* Shiny button — top right */
@@ -387,78 +408,104 @@ body {
   position: absolute;
   top: 8px;
   right: 10px;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border: 2px solid var(--gold);
-  background: var(--bg);
-  color: var(--gold);
-  font-size: 10px;
+  background: var(--gold);
+  color: #0e1128;
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 0;
-  transition: background 0.1s, color 0.1s;
+  transition: background 0.12s, color 0.12s, box-shadow 0.12s;
   z-index: 2;
 }
 
 .shiny-btn:hover {
-  background: var(--gold);
-  color: var(--bg);
+  box-shadow: 0 0 8px rgba(245, 196, 0, 0.8);
 }
 
 .shiny-btn.shiny-active {
-  background: var(--gold);
-  color: var(--bg);
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #0e1128;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+/* Sprite area */
+.card-sprite-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 30px 0 16px;
+  min-height: 150px;
 }
 
 /* Sprite */
 .pokemon-card img {
   display: block;
-  margin: 20px auto 10px;
-  width: 80px;
-  height: 80px;
+  width: 112px;
+  height: 112px;
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.6));
+  transition: transform 0.2s ease;
+}
+
+.pokemon-card:hover img {
+  transform: translateY(-4px) scale(1.08);
+}
+
+/* Card bottom info section */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 /* Pokémon name */
 .pokemon-name {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: bold;
   text-transform: uppercase;
   color: var(--text);
-  text-align: center;
-  margin-bottom: 4px;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+/* Type badges - row with wrap (match reference screenshot) */
+.type-badges {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 /* Stat bar */
 .stat-bar {
-  height: 3px;
-  background: rgba(245, 196, 0, 0.2);
-  margin: 8px 0 6px;
+  height: 4px;
+  background: rgba(245, 196, 0, 0.15);
   border-radius: 0;
   overflow: hidden;
+  margin-top: 2px;
 }
 
 .stat-bar-fill {
   height: 100%;
   background: var(--gold);
   border-radius: 0;
-  transition: width 0.3s ease;
-}
-
-/* Type badges row */
-.type-badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 4px;
+  transition: width 0.4s ease;
 }
 
 /* ══════════════════════════════════════════════
@@ -467,11 +514,12 @@ body {
 .type-badge {
   font-family: "Press Start 2P", monospace;
   font-size: 7px;
-  padding: 4px 7px;
+  padding: 4px 8px;
   text-transform: uppercase;
   display: inline-block;
   border-radius: 2px;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 /* Type colors */
