@@ -20,14 +20,6 @@ A feature-rich Pokémon web application that allows users to explore, search, an
   - Stats (HP, Attack, Defense, Speed)
 - Sort Pokémon dynamically for better comparison and analysis
 
-### ⚔️ AI Battle Simulation
-- Battle system inspired by classic games like Pokémon FireRed
-- Simulates turn-based combat mechanics
-- AI opponent makes decisions dynamically
-- Retro-style gameplay logic for an authentic feel
-
----
-
 ## 🛠️ Tech Stack
 
 - HTML  
