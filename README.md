@@ -35,16 +35,6 @@ This project draws inspiration from early Pokémon games such as **Pokémon Fire
 
 ---
 
-## 📂 Project Structure
-
-
-pokedex/
-├── index.html
-├── style.css
-├── script.js
-
-
-
 ## 📈 Future Improvements
 
 - Add animations for battle sequences  
