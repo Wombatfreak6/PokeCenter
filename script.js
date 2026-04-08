@@ -13,7 +13,9 @@ const grid             = document.getElementById("pokemon-grid");
 const loader           = document.getElementById("loader");
 const emptyState       = document.getElementById("empty-state");
 const searchInput      = document.getElementById("search-input");
-const sortSelect       = document.getElementById("sort-select");
+const sortDropdown     = document.getElementById("sort-dropdown");
+const sortDropdownVal  = document.getElementById("sort-dropdown-value");
+const sortDropdownMenu = document.getElementById("sort-dropdown-menu");
 const resultCount      = document.getElementById("result-count");
 const typeFilters      = document.getElementById("type-filters");
 const statMinEl        = document.getElementById("stat-min");
@@ -376,11 +378,50 @@ searchInput.addEventListener("input", (e) => {
   applyFilters();
 });
 
-// ── Sort listener ──────────────────────────────
-sortSelect.addEventListener("change", (e) => {
-  sortMode = e.target.value;
-  applyFilters();
+// ── Custom sort dropdown logic ─────────────────────
+function openSortDropdown() {
+  sortDropdown.classList.add("open");
+  sortDropdown.setAttribute("aria-expanded", "true");
+}
+
+function closeSortDropdown() {
+  sortDropdown.classList.remove("open");
+  sortDropdown.setAttribute("aria-expanded", "false");
+}
+
+sortDropdown.addEventListener("click", (e) => {
+  e.stopPropagation();
+  sortDropdown.classList.contains("open") ? closeSortDropdown() : openSortDropdown();
 });
+
+sortDropdown.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSortDropdown(); }
+  if (e.key === "Escape") closeSortDropdown();
+});
+
+sortDropdownMenu.querySelectorAll(".custom-dropdown-item").forEach(item => {
+  item.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const value = item.dataset.value;
+    const label = item.textContent;
+    // Update display
+    sortDropdownVal.textContent = label;
+    // Update selected state
+    sortDropdownMenu.querySelectorAll(".custom-dropdown-item").forEach(i => {
+      i.classList.remove("selected");
+      i.setAttribute("aria-selected", "false");
+    });
+    item.classList.add("selected");
+    item.setAttribute("aria-selected", "true");
+    // Apply sort
+    sortMode = value;
+    applyFilters();
+    closeSortDropdown();
+  });
+});
+
+// Close on outside click
+document.addEventListener("click", () => closeSortDropdown());
 
 // ── Stat range sliders ─────────────────────────
 statMinEl.addEventListener("input", () => {

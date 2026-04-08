@@ -47,13 +47,17 @@
         />
       </div>
       <div class="controls-right">
-        <label for="sort-select" class="sr-only">Sort by</label>
-        <select id="sort-select" class="sort-dropdown" aria-label="Sort Pokémon">
-          <option value="id-asc">DEX # ASC</option>
-          <option value="id-desc">DEX # DESC</option>
-          <option value="name-asc">NAME A→Z</option>
-          <option value="name-desc">NAME Z→A</option>
-        </select>
+        <!-- Custom sort dropdown -->
+        <div class="custom-dropdown" id="sort-dropdown" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="Sort Pokémon" tabindex="0">
+          <span class="custom-dropdown-value" id="sort-dropdown-value">DEX # ASC</span>
+          <span class="custom-dropdown-arrow">▼</span>
+          <ul class="custom-dropdown-menu" id="sort-dropdown-menu" role="listbox" aria-label="Sort options">
+            <li class="custom-dropdown-item selected" role="option" aria-selected="true" data-value="id-asc">DEX # ASC</li>
+            <li class="custom-dropdown-item" role="option" aria-selected="false" data-value="id-desc">DEX # DESC</li>
+            <li class="custom-dropdown-item" role="option" aria-selected="false" data-value="name-asc">NAME A→Z</li>
+            <li class="custom-dropdown-item" role="option" aria-selected="false" data-value="name-desc">NAME Z→A</li>
+          </ul>
+        </div>
         <button class="filter-toggle-btn active" id="filter-toggle-btn" aria-expanded="false" aria-controls="filter-panel">
           <span class="toggle-arrow">▼</span> FILTERS
         </button>
