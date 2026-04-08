@@ -54,12 +54,15 @@
           <option value="name-asc">NAME A→Z</option>
           <option value="name-desc">NAME Z→A</option>
         </select>
+        <button class="filter-toggle-btn active" id="filter-toggle-btn" aria-expanded="false" aria-controls="filter-panel">
+          <span class="toggle-arrow">▼</span> FILTERS
+        </button>
         <span class="result-count" id="result-count" aria-live="polite">— / —</span>
       </div>
     </section>
 
     <!-- ── FILTER PANEL ── -->
-    <section class="filter-panel" aria-label="Filter Pokémon">
+    <section class="filter-panel collapsed" id="filter-panel" aria-label="Filter Pokémon">
       <div class="filter-section">
         <p class="filter-label">TYPE</p>
         <div class="filter-btn-group" id="type-filters" role="group" aria-label="Filter by type">
@@ -77,6 +80,7 @@
       </div>
       <button class="reset-btn" id="reset-filters" aria-label="Reset all filters">⟳ RESET</button>
     </section>
+
 
     <!-- ── POKEMON GRID ── -->
     <section class="pokemon-grid" id="pokemon-grid" aria-label="Pokémon cards">

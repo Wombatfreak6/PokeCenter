@@ -9,23 +9,25 @@
    ══════════════════════════════════════════════ */
 
 // ── DOM refs ──────────────────────────────────
-const grid         = document.getElementById("pokemon-grid");
-const loader       = document.getElementById("loader");
-const emptyState   = document.getElementById("empty-state");
-const searchInput  = document.getElementById("search-input");
-const sortSelect   = document.getElementById("sort-select");
-const resultCount  = document.getElementById("result-count");
-const typeFilters  = document.getElementById("type-filters");
-const statMinEl    = document.getElementById("stat-min");
-const statMaxEl    = document.getElementById("stat-max");
-const statMinVal   = document.getElementById("stat-min-val");
-const statMaxVal   = document.getElementById("stat-max-val");
-const loadMoreWrap = document.getElementById("load-more-wrapper");
-const loadMoreBtn  = document.getElementById("load-more-btn");
-const resetBtn     = document.getElementById("reset-filters");
-const modalOverlay = document.getElementById("modal-overlay");
-const modalContent = document.getElementById("modal-content");
-const modalClose   = document.getElementById("modal-close");
+const grid             = document.getElementById("pokemon-grid");
+const loader           = document.getElementById("loader");
+const emptyState       = document.getElementById("empty-state");
+const searchInput      = document.getElementById("search-input");
+const sortSelect       = document.getElementById("sort-select");
+const resultCount      = document.getElementById("result-count");
+const typeFilters      = document.getElementById("type-filters");
+const statMinEl        = document.getElementById("stat-min");
+const statMaxEl        = document.getElementById("stat-max");
+const statMinVal       = document.getElementById("stat-min-val");
+const statMaxVal       = document.getElementById("stat-max-val");
+const loadMoreWrap     = document.getElementById("load-more-wrapper");
+const loadMoreBtn      = document.getElementById("load-more-btn");
+const resetBtn         = document.getElementById("reset-filters");
+const modalOverlay     = document.getElementById("modal-overlay");
+const modalContent     = document.getElementById("modal-content");
+const modalClose       = document.getElementById("modal-close");
+const filterPanel      = document.getElementById("filter-panel");
+const filterToggleBtn  = document.getElementById("filter-toggle-btn");
 
 // ── State ─────────────────────────────────────
 let allPokemon      = [];   // full dataset, fetched once
@@ -413,6 +415,17 @@ resetBtn.addEventListener("click", () => {
   statMinEl.value = 0; statMaxEl.value = 720;
   statMinVal.textContent = 0; statMaxVal.textContent = 720;
   applyFilters();
+});
+
+// ── Filter panel toggle ────────────────────────
+let filtersVisible = false;
+
+filterToggleBtn.addEventListener("click", () => {
+  filtersVisible = !filtersVisible;
+  filterPanel.classList.toggle("collapsed", !filtersVisible);
+  filterToggleBtn.setAttribute("aria-expanded", String(filtersVisible));
+  // Swap button label arrow direction via .active class
+  filterToggleBtn.classList.toggle("active", !filtersVisible);
 });
 
 // ── Bootstrap ─────────────────────────────────

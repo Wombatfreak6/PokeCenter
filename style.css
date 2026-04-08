@@ -203,6 +203,45 @@ body {
   text-align: right;
 }
 
+/* Filter toggle button */
+.filter-toggle-btn {
+  border: 2px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-toggle-btn:hover {
+  background: rgba(245, 196, 0, 0.12);
+  box-shadow: 0 0 8px rgba(245, 196, 0, 0.3);
+}
+
+.filter-toggle-btn.active {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.filter-toggle-btn .toggle-arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+
+.filter-toggle-btn.active .toggle-arrow {
+  transform: rotate(180deg);
+}
+
 /* ══════════════════════════════════════════════
    FILTER PANEL
    ══════════════════════════════════════════════ */
@@ -215,6 +254,21 @@ body {
   flex-wrap: wrap;
   gap: 20px;
   align-items: flex-start;
+  /* Collapse animation */
+  overflow: hidden;
+  max-height: 400px;
+  transition: max-height 0.35s ease, padding 0.35s ease, margin-bottom 0.35s ease, opacity 0.3s ease, border-width 0.35s ease;
+  opacity: 1;
+}
+
+.filter-panel.collapsed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  opacity: 0;
+  border-width: 0;
+  pointer-events: none;
 }
 
 .filter-section {
