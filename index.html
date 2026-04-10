@@ -26,7 +26,7 @@
     </div>
     <ul class="nav-links">
       <li><a href="#" class="nav-link active" id="nav-dex">POKÉDEX</a></li>
-      <li><a href="#" class="nav-link" id="nav-about">GEN I</a></li>
+      <li><a href="#" class="nav-link" id="nav-battle">BATTLE</a></li>
     </ul>
     <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle light/dark theme" title="Toggle theme">
       <span id="theme-toggle-icon">LIGHT</span>
@@ -34,7 +34,8 @@
   </nav>
 
   <!-- ═══ MAIN CONTENT ═══ -->
-  <main class="main-wrapper">
+  <!-- ── POKÉDEX VIEW ── -->
+  <main class="main-wrapper" id="pokedex-view">
 
     <!-- ── SEARCH + CONTROLS BAR ── -->
     <section class="controls-bar" aria-label="Search and controls">
@@ -110,6 +111,14 @@
       <button class="load-more-btn" id="load-more-btn">▼ LOAD MORE</button>
     </div>
 
+  </main>
+
+  <!-- ═══ BATTLE VIEW ═══ -->
+  <main class="main-wrapper hidden" id="battle-view" aria-label="Battle Simulator">
+    <div class="battle-placeholder">
+      <h1 class="battle-title">⚔ BATTLE ARENA</h1>
+      <p class="battle-subtitle">COMING SOON — TEAM BUILDER &amp; AI BATTLE</p>
+    </div>
   </main>
 
   <!-- ═══ DETAIL MODAL ═══ -->

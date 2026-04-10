@@ -32,6 +32,28 @@ const filterPanel      = document.getElementById("filter-panel");
 const filterToggleBtn  = document.getElementById("filter-toggle-btn");
 const themeToggleBtn   = document.getElementById("theme-toggle-btn");
 const themeToggleIcon  = document.getElementById("theme-toggle-icon");
+const navDex           = document.getElementById("nav-dex");
+const navBattle        = document.getElementById("nav-battle");
+const pokedexView      = document.getElementById("pokedex-view");
+const battleView       = document.getElementById("battle-view");
+
+// ── View Router ───────────────────────────────
+function showView(view) {
+  if (view === "dex") {
+    pokedexView.classList.remove("hidden");
+    battleView.classList.add("hidden");
+    navDex.classList.add("active");
+    navBattle.classList.remove("active");
+  } else {
+    battleView.classList.remove("hidden");
+    pokedexView.classList.add("hidden");
+    navBattle.classList.add("active");
+    navDex.classList.remove("active");
+  }
+}
+
+navDex.addEventListener("click", (e) => { e.preventDefault(); showView("dex"); });
+navBattle.addEventListener("click", (e) => { e.preventDefault(); showView("battle"); });
 
 // ── State ─────────────────────────────────────
 let allPokemon      = [];   // full dataset, fetched once

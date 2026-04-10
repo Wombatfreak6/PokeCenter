@@ -1103,3 +1103,70 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* ══════════════════════════════════════════════
+   BATTLE VIEW — PLACEHOLDER
+   ══════════════════════════════════════════════ */
+.battle-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 80px 20px;
+  border: 2px solid var(--gold);
+  background: var(--surface);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle pixel-art corner decoration */
+.battle-placeholder::before,
+.battle-placeholder::after {
+  content: '✦';
+  position: absolute;
+  font-size: 48px;
+  color: var(--gold-10);
+  pointer-events: none;
+}
+.battle-placeholder::before { top: 20px; left: 24px; }
+.battle-placeholder::after  { bottom: 20px; right: 24px; }
+
+.battle-title {
+  font-family: "Press Start 2P", monospace;
+  font-size: 22px;
+  color: var(--red);
+  letter-spacing: 4px;
+  text-shadow: 0 0 18px var(--red), 0 2px 0 rgba(0,0,0,0.4);
+  animation: titlePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+  0%, 100% { text-shadow: 0 0 18px var(--red), 0 2px 0 rgba(0,0,0,0.4); }
+  50%       { text-shadow: 0 0 32px var(--red), 0 0 8px var(--gold-40), 0 2px 0 rgba(0,0,0,0.4); }
+}
+
+.battle-subtitle {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: var(--gold-65);
+  letter-spacing: 2px;
+  animation: blink 1.4s steps(1) infinite;
+}
+
+/* ── Nav active underline indicator ── */
+.nav-link {
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+}
