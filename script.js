@@ -890,7 +890,7 @@ function calculateDamage(move, attacker, defender) {
 // ── Update UI Status ──
 function updateArenaUI() {
   // Opponent UI
-  arenaOppName.textContent = oppFighterState.name.toUpperCase();
+  arenaOppName.textContent = cleanName(oppFighterState.name).toUpperCase();
   arenaOppHpText.textContent = `${oppFighterState.currentHp}/${oppFighterState.maxHp}`;
   const oppPct = Math.max(0, (oppFighterState.currentHp / oppFighterState.maxHp) * 100);
   arenaOppHpFill.style.width = oppPct + "%";
@@ -898,7 +898,7 @@ function updateArenaUI() {
   arenaOppSprite.src = oppFighterState.sprites.front_default || "";
 
   // Player UI
-  arenaPlayerName.textContent = playerFighterState.name.toUpperCase();
+  arenaPlayerName.textContent = cleanName(playerFighterState.name).toUpperCase();
   arenaPlayerHpText.textContent = `${playerFighterState.currentHp}/${playerFighterState.maxHp}`;
   const pPct = Math.max(0, (playerFighterState.currentHp / playerFighterState.maxHp) * 100);
   arenaPlayerHpFill.style.width = pPct + "%";
@@ -907,15 +907,24 @@ function updateArenaUI() {
   arenaPlayerSprite.src = playerFighterState.sprites.back_default || playerFighterState.sprites.front_default || "";
 }
 
+function cleanName(str) {
+  if (!str) return "";
+  return str.split("-").join(" ");
+}
+
+let currentTypeInterval = null;
+
 function typeMessage(text) {
+  if (currentTypeInterval) clearInterval(currentTypeInterval);
   arenaDialogueText.innerHTML = "";
   let i = 0;
   return new Promise(resolve => {
-    const int = setInterval(() => {
+    currentTypeInterval = setInterval(() => {
       arenaDialogueText.innerHTML += text.charAt(i);
       i++;
       if (i >= text.length) {
-        clearInterval(int);
+        clearInterval(currentTypeInterval);
+        currentTypeInterval = null;
         setTimeout(resolve, 800); // Wait a bit after text finishes
       }
     }, 20); // typing speed
@@ -930,7 +939,7 @@ function renderMoves() {
     btn.disabled = isBattleOver;
     btn.innerHTML = `
       <div class="move-header">
-        <span class="move-name">${move.name.toUpperCase()}</span>
+        <span class="move-name">${cleanName(move.name).toUpperCase()}</span>
         <span class="move-pp">PP ${move.pp}/${move.maxPp}</span>
       </div>
       <span class="type-badge type-${move.type} move-type">${move.type.toUpperCase()}</span>
@@ -961,7 +970,7 @@ async function handlePlayerTurn(moveIndex) {
   if (!isBattleOver) {
     Array.from(arenaMovesGrid.children).forEach(b => b.disabled = false);
     arenaRunBtn.disabled = false;
-    typeMessage(`What will ${playerFighterState.name.toUpperCase()} do?`);
+    typeMessage(`What will ${cleanName(playerFighterState.name).toUpperCase()} do?`);
   }
 }
 
@@ -981,7 +990,7 @@ async function aiTurn() {
 }
 
 async function executeAttack(attacker, defender, move, defenderSpriteEl) {
-  await typeMessage(`${attacker.name.toUpperCase()} used ${move.name.toUpperCase()}!`);
+  await typeMessage(`${cleanName(attacker.name).toUpperCase()} used ${cleanName(move.name).toUpperCase()}!`);
   
   const { damage, mult } = calculateDamage(move, attacker, defender);
   defender.currentHp = Math.max(0, defender.currentHp - damage);
@@ -1001,8 +1010,13 @@ async function executeAttack(attacker, defender, move, defenderSpriteEl) {
   if (defender.currentHp === 0) {
     isBattleOver = true;
     defenderSpriteEl.classList.add("fainted");
-    await typeMessage(`${defender.name.toUpperCase()} fainted!`);
+    await typeMessage(`${cleanName(defender.name).toUpperCase()} fainted!`);
     await typeMessage(attacker.isPlayer ? "YOU WIN!" : "YOU BLACKED OUT!");
+    
+    arenaRunBtn.textContent = "↩ RETURN TO SETUP";
+    arenaRunBtn.style.color = "var(--gold)";
+    arenaRunBtn.style.borderColor = "var(--gold)";
+    arenaRunBtn.disabled = false;
   }
 }
 
@@ -1025,11 +1039,14 @@ async function initBattle() {
     battleSetupContainer.classList.add("hidden");
     battleArenaContainer.classList.remove("hidden");
     
-    await typeMessage(`Rival sent out ${oppFighterState.name.toUpperCase()}!`);
-    await typeMessage(`Go! ${playerFighterState.name.toUpperCase()}!`);
-    await typeMessage(`What will ${playerFighterState.name.toUpperCase()} do?`);
+    await typeMessage(`Rival sent out ${cleanName(oppFighterState.name).toUpperCase()}!`);
+    await typeMessage(`Go! ${cleanName(playerFighterState.name).toUpperCase()}!`);
+    await typeMessage(`What will ${cleanName(playerFighterState.name).toUpperCase()} do?`);
 
     arenaRunBtn.disabled = false;
+    arenaRunBtn.textContent = "🏃 RUN";
+    arenaRunBtn.style.color = "";
+    arenaRunBtn.style.borderColor = "";
   } catch (err) {
     showBattleError("FAILED TO START BATTLE.");
     console.error(err);
@@ -1041,9 +1058,15 @@ async function initBattle() {
 fightBtn.addEventListener("click", initBattle);
 
 arenaRunBtn.addEventListener("click", async () => {
-  if (isBattleOver) return;
   arenaRunBtn.disabled = true;
   Array.from(arenaMovesGrid.children).forEach(b => b.disabled = true);
+  
+  if (isBattleOver) {
+    battleArenaContainer.classList.add("hidden");
+    battleSetupContainer.classList.remove("hidden");
+    return;
+  }
+  
   await typeMessage("Got away safely!");
   
   setTimeout(() => {

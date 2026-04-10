@@ -1593,6 +1593,11 @@ body {
   }
 }
 
+/* Hide broken images when src is empty */
+img[src=""] {
+  visibility: hidden;
+}
+
 /* ══════════════════════════════════════════════
    BATTLE ARENA (ACTUAL BATTLE)
    ══════════════════════════════════════════════ */
