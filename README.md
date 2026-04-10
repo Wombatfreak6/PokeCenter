@@ -6,19 +6,28 @@ A feature-rich Pokémon web application that allows users to explore, search, an
 ## 🚀 Features
 
 ### 🔍 Search & Discovery
-- Search Pokémon by name in real-time
+- Search Pokémon by name or ID in real-time
 - Instant results powered by API integration
+- Detailed Modal view showing stats, abilities, forms, and shiny sprites
 
 ### 🧩 Grid Interface
-- Clean, responsive grid layout
-- Displays Pokémon with essential stats and visuals
+- Clean, responsive retro-style grid layout
+- Displays Pokémon with essential stats and type badges
 - Designed for smooth browsing experience
+- Light and Dark Theme toggle
 
-### 🎯 Filters & Sorting
+### 🎯 Filters, Sorting & Pagination
 - Filter Pokémon based on:
-  - Type (Fire, Water, Grass, etc.)
-  - Stats (HP, Attack, Defense, Speed)
-- Sort Pokémon dynamically for better comparison and analysis
+  - Any of the 18 Types
+  - Base Stat Total (BST) range sliders
+- Sort Pokémon dynamically (Dex # ASC/DESC, Name A-Z/Z-A)
+- Paginated loading for optimal performance
+
+### ⚔️ Battle Simulator
+- Dedicated "Battle Arena" mode
+- Full team builder configuration for up to 6 Pokémon per side (Player vs Opponent)
+- Fighter preview with live stat calculations
+- Simulated turn-based battle UI including dialogue box and move selection menus
 
 ## 🛠️ Tech Stack
 
@@ -38,8 +47,7 @@ This project draws inspiration from early Pokémon games such as **Pokémon Fire
 ## 📈 Future Improvements
 
 - Add animations for battle sequences  
-- Improve AI decision-making  
-- Add team builder functionality  
+- Improve opponent AI decision-making  
 - Save/load battle states  
 - Enhanced UI/UX and mobile optimization  
 
