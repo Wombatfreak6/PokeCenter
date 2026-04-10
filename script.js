@@ -799,6 +799,8 @@ const arenaDialogueText = document.getElementById("arena-dialogue-text");
 const arenaMovesGrid = document.getElementById("arena-moves-grid");
 const arenaRunBtn = document.getElementById("arena-run-btn");
 
+let playerTeamState = [];
+let oppTeamState = [];
 let playerFighterState = null;
 let oppFighterState = null;
 let isBattleOver = false;
@@ -962,10 +964,14 @@ async function handlePlayerTurn(moveIndex) {
   move.pp--;
   renderMoves();
   
+  const oldOpp = oppFighterState;
   await executeAttack(playerFighterState, oppFighterState, move, arenaOppSprite);
   if (isBattleOver) return;
 
-  await aiTurn();
+  // Only let AI attack if opponent's active fighter didn't faint and swap
+  if (oldOpp === oppFighterState) {
+    await aiTurn();
+  }
 
   if (!isBattleOver) {
     Array.from(arenaMovesGrid.children).forEach(b => b.disabled = false);
@@ -1008,15 +1014,35 @@ async function executeAttack(attacker, defender, move, defenderSpriteEl) {
   }
 
   if (defender.currentHp === 0) {
-    isBattleOver = true;
     defenderSpriteEl.classList.add("fainted");
     await typeMessage(`${cleanName(defender.name).toUpperCase()} fainted!`);
-    await typeMessage(attacker.isPlayer ? "YOU WIN!" : "YOU BLACKED OUT!");
-    
-    arenaRunBtn.textContent = "↩ RETURN TO SETUP";
-    arenaRunBtn.style.color = "var(--gold)";
-    arenaRunBtn.style.borderColor = "var(--gold)";
-    arenaRunBtn.disabled = false;
+
+    const isPlayerDef = defender.isPlayer;
+    const teamState = isPlayerDef ? playerTeamState : oppTeamState;
+    const nextFighter = teamState.find(p => p.currentHp > 0);
+
+    if (nextFighter) {
+      if (isPlayerDef) {
+        playerFighterState = nextFighter;
+        updateArenaUI();
+        renderMoves();
+        arenaPlayerSprite.classList.remove("fainted");
+        await typeMessage(`Go! ${cleanName(playerFighterState.name).toUpperCase()}!`);
+      } else {
+        oppFighterState = nextFighter;
+        updateArenaUI();
+        arenaOppSprite.classList.remove("fainted");
+        await typeMessage(`Rival sent out ${cleanName(oppFighterState.name).toUpperCase()}!`);
+      }
+    } else {
+      isBattleOver = true;
+      await typeMessage(attacker.isPlayer ? "YOU WIN!" : "YOU BLACKED OUT!");
+      
+      arenaRunBtn.textContent = "↩ RETURN TO SETUP";
+      arenaRunBtn.style.color = "var(--gold)";
+      arenaRunBtn.style.borderColor = "var(--gold)";
+      arenaRunBtn.disabled = false;
+    }
   }
 }
 
@@ -1026,8 +1052,12 @@ async function initBattle() {
   
   setBattleLoading(true, "PREPARING ARENA…");
   try {
-    playerFighterState = await buildFighter(playerActive, true);
-    oppFighterState = await buildFighter(opponentActive, false);
+    playerTeamState = await Promise.all(playerTeam.map(p => buildFighter(p, true)));
+    oppTeamState = await Promise.all(opponentTeam.map(p => buildFighter(p, false)));
+    
+    // Ensure the user's selected active fighters are the starting ones
+    playerFighterState = playerTeamState.find(p => p.id === playerActive.id) || playerTeamState[0];
+    oppFighterState = oppTeamState.find(p => p.id === opponentActive.id) || oppTeamState[0];
     
     isBattleOver = false;
     arenaOppSprite.classList.remove("fainted");
