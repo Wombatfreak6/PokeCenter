@@ -115,10 +115,147 @@
 
   <!-- ═══ BATTLE VIEW ═══ -->
   <main class="main-wrapper hidden" id="battle-view" aria-label="Battle Simulator">
-    <div class="battle-placeholder">
-      <h1 class="battle-title">⚔ BATTLE ARENA</h1>
-      <p class="battle-subtitle">COMING SOON — TEAM BUILDER &amp; AI BATTLE</p>
+
+    <!-- ── PAGE HEADER ── -->
+    <div class="battle-page-header">
+      <h1 class="battle-page-title">BATTLE ARENA</h1>
+      <p class="battle-page-sub" id="battle-page-sub">BATTLE SETUP</p>
     </div>
+
+    <!-- ── SETUP CONTAINER ── -->
+    <div id="battle-setup-container">
+    <!-- ── ADD POKÉMON BAR ── -->
+    <div class="battle-add-bar" role="search" aria-label="Add Pokémon to team">
+      <div class="battle-add-input-wrap">
+        <input
+          type="text"
+          id="battle-search-input"
+          class="battle-search-bar"
+          placeholder="Add Pokémon by name…"
+          autocomplete="off"
+          aria-label="Pokémon name to add"
+        />
+        <div class="battle-add-target-wrap">
+          <button class="battle-target-btn active" id="target-player" aria-pressed="true" title="Add to your team">YOUR TEAM</button>
+          <span class="battle-target-vs">|</span>
+          <button class="battle-target-btn" id="target-opponent" aria-pressed="false" title="Add to opponent team">OPPONENT</button>
+        </div>
+      </div>
+      <button class="battle-add-btn" id="battle-add-btn" aria-label="Add Pokémon">ADD</button>
+      <button class="battle-clear-btn" id="battle-clear-btn" aria-label="Clear all teams" title="Clear all teams">✕ CLEAR</button>
+    </div>
+
+    <!-- ── ERROR MESSAGE ── -->
+    <div class="battle-error hidden" id="battle-error" role="alert" aria-live="polite">
+      <span id="battle-error-text"></span>
+    </div>
+
+    <!-- ── TEAMS GRID ── -->
+    <div class="battle-teams-row">
+
+      <!-- YOUR POKÉMON -->
+      <section class="team-section player-section" aria-label="Your team">
+        <h2 class="team-heading player-heading">YOUR POKÉMON</h2>
+        <div class="team-grid" id="player-team-grid" aria-label="Your team slots">
+          <!-- Mini cards injected by JS, 6 max -->
+        </div>
+        <p class="team-hint" id="player-hint">ADD UP TO 6 POKÉMON</p>
+      </section>
+
+      <!-- VS DIVIDER -->
+      <div class="battle-vs-divider" aria-hidden="true">
+        <span class="vs-text">VS</span>
+      </div>
+
+      <!-- OPPONENT POKÉMON -->
+      <section class="team-section opponent-section" aria-label="Opponent team">
+        <h2 class="team-heading opponent-heading">OPPONENT</h2>
+        <div class="team-grid" id="opponent-team-grid" aria-label="Opponent team slots">
+          <!-- Mini cards injected by JS, 6 max -->
+        </div>
+        <p class="team-hint" id="opponent-hint">ADD UP TO 6 POKÉMON</p>
+      </section>
+
+    </div>
+
+    <!-- ── ACTIVE FIGHTER PREVIEW ── -->
+    <div class="battle-preview-section" id="battle-preview-section">
+      <div class="battle-fighter-preview" id="player-preview">
+        <img class="battle-fighter-sprite" id="player-fighter-sprite" src="" alt="" aria-hidden="true" />
+        <p class="battle-fighter-name" id="player-fighter-name">—</p>
+        <div class="battle-fighter-types" id="player-fighter-types"></div>
+      </div>
+
+      <button class="fight-btn" id="fight-btn" disabled aria-disabled="true" aria-label="Start battle">
+        FIGHT!
+      </button>
+
+      <div class="battle-fighter-preview opponent-preview" id="opponent-preview">
+        <img class="battle-fighter-sprite" id="opponent-fighter-sprite" src="" alt="" aria-hidden="true" />
+        <p class="battle-fighter-name" id="opponent-fighter-name">—</p>
+        <div class="battle-fighter-types" id="opponent-fighter-types"></div>
+      </div>
+      </div>
+    </div> <!-- END SETUP CONTAINER -->
+
+    <!-- ── ACTUAL BATTLE ARENA ── -->
+    <div id="battle-arena-container" class="hidden">
+      
+      <!-- OPPONENT ROW -->
+      <div class="arena-row opp-row">
+        <div class="arena-info opp-info">
+          <div class="arena-info-header">
+            <span class="arena-info-name" id="arena-opp-name">POKEMON</span>
+            <span class="arena-info-lvl">Lv50</span>
+          </div>
+          <div class="arena-hp-wrap">
+            <span class="arena-hp-label">HP</span>
+            <div class="arena-hp-bar">
+              <div class="arena-hp-fill" id="arena-opp-hp-fill"></div>
+            </div>
+          </div>
+          <div class="arena-hp-text" id="arena-opp-hp-text">100/100</div>
+        </div>
+        <img class="arena-sprite" id="arena-opp-sprite" src="" alt="" />
+      </div>
+
+      <!-- PLAYER ROW -->
+      <div class="arena-row player-row">
+        <img class="arena-sprite" id="arena-player-sprite" src="" alt="" />
+        <div class="arena-info player-info">
+          <div class="arena-info-header">
+            <span class="arena-info-name" id="arena-player-name">POKEMON</span>
+            <span class="arena-info-lvl">Lv50</span>
+          </div>
+          <div class="arena-hp-wrap">
+            <span class="arena-hp-label">HP</span>
+            <div class="arena-hp-bar">
+              <div class="arena-hp-fill" id="arena-player-hp-fill"></div>
+            </div>
+          </div>
+          <div class="arena-hp-text" id="arena-player-hp-text">100/100</div>
+        </div>
+      </div>
+
+      <!-- DIALOGUE BOX -->
+      <div class="arena-dialogue-box">
+        <p id="arena-dialogue-text">Simulation ready!</p>
+      </div>
+
+      <!-- MOVES GRID -->
+      <div class="arena-moves-grid" id="arena-moves-grid">
+        <!-- Move buttons injected by JS -->
+      </div>
+      <button class="arena-run-btn" id="arena-run-btn">🏃 RUN</button>
+
+    </div>
+
+    <!-- ── LOADING INDICATOR ── -->
+    <div class="battle-loader hidden" id="battle-loader" aria-live="polite">
+      <div class="loader-spinner" aria-hidden="true"></div>
+      <p class="loader-text" id="battle-loader-text">LOADING…</p>
+    </div>
+
   </main>
 
   <!-- ═══ DETAIL MODAL ═══ -->

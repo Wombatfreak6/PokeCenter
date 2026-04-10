@@ -522,3 +522,532 @@ themeToggleBtn.addEventListener("click", () => {
 // ── Bootstrap ─────────────────────────────────
 buildTypeFilters();
 loadAllPokemon();
+
+/* ══════════════════════════════════════════════
+   BATTLE SETUP — TEAM BUILDER
+   ══════════════════════════════════════════════ */
+
+// ── DOM refs (battle page) ───────────────────
+const battleSearchInput   = document.getElementById("battle-search-input");
+const battleAddBtn        = document.getElementById("battle-add-btn");
+const battleClearBtn      = document.getElementById("battle-clear-btn");
+const targetPlayerBtn     = document.getElementById("target-player");
+const targetOpponentBtn   = document.getElementById("target-opponent");
+const playerTeamGrid      = document.getElementById("player-team-grid");
+const opponentTeamGrid    = document.getElementById("opponent-team-grid");
+const playerHint          = document.getElementById("player-hint");
+const opponentHint        = document.getElementById("opponent-hint");
+const battleError         = document.getElementById("battle-error");
+const battleErrorText     = document.getElementById("battle-error-text");
+const battleLoader        = document.getElementById("battle-loader");
+const battleLoaderText    = document.getElementById("battle-loader-text");
+const fightBtn            = document.getElementById("fight-btn");
+
+// Fighter preview
+const playerFighterSprite  = document.getElementById("player-fighter-sprite");
+const playerFighterName    = document.getElementById("player-fighter-name");
+const playerFighterTypes   = document.getElementById("player-fighter-types");
+const opponentFighterSprite = document.getElementById("opponent-fighter-sprite");
+const opponentFighterName  = document.getElementById("opponent-fighter-name");
+const opponentFighterTypes = document.getElementById("opponent-fighter-types");
+
+// ── Battle State ─────────────────────────────
+const MAX_TEAM = 6;
+let playerTeam    = [];   // array of pokemon objects
+let opponentTeam  = [];
+let playerActive  = null; // pokemon object of active fighter
+let opponentActive = null;
+let addTarget     = "player"; // "player" | "opponent"
+
+// ── Target selector toggle ───────────────────
+targetPlayerBtn.addEventListener("click", () => {
+  addTarget = "player";
+  targetPlayerBtn.classList.add("active");
+  targetPlayerBtn.setAttribute("aria-pressed", "true");
+  targetOpponentBtn.classList.remove("active");
+  targetOpponentBtn.setAttribute("aria-pressed", "false");
+});
+
+targetOpponentBtn.addEventListener("click", () => {
+  addTarget = "opponent";
+  targetOpponentBtn.classList.add("active");
+  targetOpponentBtn.setAttribute("aria-pressed", "true");
+  targetPlayerBtn.classList.remove("active");
+  targetPlayerBtn.setAttribute("aria-pressed", "false");
+});
+
+// ── Show / hide battle loader ─────────────────
+function setBattleLoading(visible, text = "LOADING…") {
+  battleLoaderText.textContent = text;
+  battleLoader.classList.toggle("hidden", !visible);
+}
+
+// ── Show / hide battle error ──────────────────
+function showBattleError(msg) {
+  battleErrorText.textContent = msg;
+  battleError.classList.remove("hidden");
+  // Re-trigger animation by cloning node
+  const clone = battleError.cloneNode(true);
+  battleError.parentNode.replaceChild(clone, battleError);
+  // Re-assign reference for subsequent calls
+  Object.assign(document.getElementById("battle-error").style, {});
+  setTimeout(() => document.getElementById("battle-error").classList.add("hidden"), 3500);
+}
+
+// ── Fetch a single Pokémon (reuses cache if loaded) ──
+async function fetchBattlePokemon(nameOrId) {
+  const norm = String(nameOrId).toLowerCase().trim();
+  // Check already-loaded Pokédex data first
+  const cached = allPokemon.find(p => p.name === norm || String(p.id) === norm);
+  if (cached) return cached;
+  // Fallback: fresh fetch
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${norm}`);
+  if (!res.ok) throw new Error(`"${norm}" not found`);
+  return res.json();
+}
+
+// ── Add Pokémon to a team ─────────────────────
+async function addToTeam(nameOrId, side) {
+  const team = side === "player" ? playerTeam : opponentTeam;
+  if (team.length >= MAX_TEAM) {
+    showBattleError(`TEAM FULL! MAX ${MAX_TEAM} POKÉMON PER SIDE.`);
+    return;
+  }
+  setBattleLoading(true, `FETCHING ${String(nameOrId).toUpperCase()}…`);
+  try {
+    const pokemon = await fetchBattlePokemon(nameOrId);
+    // Prevent duplicates on same side
+    if (team.some(p => p.id === pokemon.id)) {
+      showBattleError(`${pokemon.name.toUpperCase()} IS ALREADY ON THIS TEAM!`);
+      return;
+    }
+    team.push(pokemon);
+    // Auto-select as active if first on that side
+    if (side === "player"  && !playerActive)   setActiveFighter("player",   pokemon);
+    if (side === "opponent" && !opponentActive) setActiveFighter("opponent", pokemon);
+    renderTeam(side);
+    battleSearchInput.value = "";
+  } catch (err) {
+    showBattleError(`POKÉMON NOT FOUND: "${String(nameOrId).toUpperCase()}"`);
+  } finally {
+    setBattleLoading(false);
+  }
+}
+
+// ── Render a team grid ────────────────────────
+function renderTeam(side) {
+  const team    = side === "player" ? playerTeam    : opponentTeam;
+  const grid    = side === "player" ? playerTeamGrid : opponentTeamGrid;
+  const hint    = side === "player" ? playerHint    : opponentHint;
+  const active  = side === "player" ? playerActive  : opponentActive;
+
+  grid.innerHTML = "";
+
+  team.forEach((pokemon, idx) => {
+    const card = document.createElement("div");
+    card.className = "team-mini-card";
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", `Select ${pokemon.name} as active fighter`);
+    card.id = `team-card-${side}-${pokemon.id}`;
+
+    if (active && active.id === pokemon.id) card.classList.add("active-fighter");
+
+    const sprite = pokemon.sprites.front_default || "";
+    card.innerHTML = `
+      <button class="team-mini-remove" aria-label="Remove ${pokemon.name}" tabindex="0">✕</button>
+      <img class="team-mini-sprite" src="${sprite}" alt="${pokemon.name}" />
+      <p class="team-mini-name">${pokemon.name}</p>
+    `;
+
+    // Click to set as active fighter
+    card.addEventListener("click", (e) => {
+      if (e.target.classList.contains("team-mini-remove")) return;
+      setActiveFighter(side, pokemon);
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (!e.target.classList.contains("team-mini-remove")) setActiveFighter(side, pokemon);
+      }
+    });
+
+    // Remove button
+    const removeBtn = card.querySelector(".team-mini-remove");
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeFromTeam(side, pokemon.id);
+    });
+
+    grid.appendChild(card);
+  });
+
+  // Hint text
+  hint.textContent = team.length >= MAX_TEAM
+    ? "TEAM FULL"
+    : `ADD UP TO ${MAX_TEAM} POKÉMON`;
+
+  updateFightButton();
+}
+
+// ── Remove a Pokémon from a team ──────────────
+function removeFromTeam(side, pokemonId) {
+  if (side === "player") {
+    playerTeam = playerTeam.filter(p => p.id !== pokemonId);
+    if (playerActive && playerActive.id === pokemonId) {
+      playerActive = playerTeam[0] || null;
+      updatePreview("player");
+    }
+  } else {
+    opponentTeam = opponentTeam.filter(p => p.id !== pokemonId);
+    if (opponentActive && opponentActive.id === pokemonId) {
+      opponentActive = opponentTeam[0] || null;
+      updatePreview("opponent");
+    }
+  }
+  renderTeam(side);
+}
+
+// ── Set active fighter & update preview ───────
+function setActiveFighter(side, pokemon) {
+  if (side === "player") {
+    playerActive = pokemon;
+  } else {
+    opponentActive = pokemon;
+  }
+  renderTeam(side);        // re-render to update active border
+  updatePreview(side);
+}
+
+// ── Update the fighter preview strip ─────────
+function updatePreview(side) {
+  const pokemon = side === "player" ? playerActive : opponentActive;
+  const sprite  = side === "player" ? playerFighterSprite  : opponentFighterSprite;
+  const nameEl  = side === "player" ? playerFighterName    : opponentFighterName;
+  const typesEl = side === "player" ? playerFighterTypes   : opponentFighterTypes;
+
+  if (!pokemon) {
+    sprite.src         = "";
+    sprite.alt         = "";
+    nameEl.textContent = "—";
+    typesEl.innerHTML  = "";
+    updateFightButton();
+    return;
+  }
+
+  sprite.src         = pokemon.sprites.front_default || "";
+  sprite.alt         = pokemon.name;
+  nameEl.textContent = pokemon.name.toUpperCase();
+  const types = pokemon.types.map(t => t.type.name);
+  typesEl.innerHTML = types
+    .map(t => `<span class="type-badge type-${t}">${t.toUpperCase()}</span>`)
+    .join("");
+  updateFightButton();
+}
+
+// ── Enable/disable FIGHT! button ──────────────
+function updateFightButton() {
+  const ready = !!(playerActive && opponentActive);
+  fightBtn.disabled = !ready;
+  fightBtn.setAttribute("aria-disabled", String(!ready));
+}
+
+// ── Clear all teams ───────────────────────────
+function clearAllTeams() {
+  playerTeam     = [];
+  opponentTeam   = [];
+  playerActive   = null;
+  opponentActive = null;
+  renderTeam("player");
+  renderTeam("opponent");
+  updatePreview("player");
+  updatePreview("opponent");
+}
+
+// ── Wire up buttons ───────────────────────────
+battleAddBtn.addEventListener("click", () => {
+  const val = battleSearchInput.value.trim();
+  if (!val) { showBattleError("PLEASE ENTER A POKÉMON NAME!"); return; }
+  addToTeam(val, addTarget);
+});
+
+battleSearchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const val = battleSearchInput.value.trim();
+    if (!val) { showBattleError("PLEASE ENTER A POKÉMON NAME!"); return; }
+    addToTeam(val, addTarget);
+  }
+});
+
+battleClearBtn.addEventListener("click", clearAllTeams);
+
+// ── Battle Arena Refs ───────────────────────────
+const battleSetupContainer = document.getElementById("battle-setup-container");
+const battleArenaContainer = document.getElementById("battle-arena-container");
+
+const arenaOppName = document.getElementById("arena-opp-name");
+const arenaOppHpFill = document.getElementById("arena-opp-hp-fill");
+const arenaOppHpText = document.getElementById("arena-opp-hp-text");
+const arenaOppSprite = document.getElementById("arena-opp-sprite");
+
+const arenaPlayerName = document.getElementById("arena-player-name");
+const arenaPlayerHpFill = document.getElementById("arena-player-hp-fill");
+const arenaPlayerHpText = document.getElementById("arena-player-hp-text");
+const arenaPlayerSprite = document.getElementById("arena-player-sprite");
+
+const arenaDialogueText = document.getElementById("arena-dialogue-text");
+const arenaMovesGrid = document.getElementById("arena-moves-grid");
+const arenaRunBtn = document.getElementById("arena-run-btn");
+
+let playerFighterState = null;
+let oppFighterState = null;
+let isBattleOver = false;
+
+// Simplified Type Chart
+const TYPE_CHART = {
+  normal: { rock: 0.5, ghost: 0, steel: 0.5 },
+  fire: { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
+  water: { fire: 2, water: 0.5, grass: 0.5, ground: 2, rock: 2, dragon: 0.5 },
+  grass: { fire: 0.5, water: 2, grass: 0.5, poison: 0.5, ground: 2, flying: 0.5, bug: 0.5, rock: 2, dragon: 0.5, steel: 0.5 },
+  electric: { water: 2, grass: 0.5, electric: 0.5, ground: 0, flying: 2, dragon: 0.5 },
+  ice: { fire: 0.5, water: 0.5, grass: 2, ice: 0.5, ground: 2, flying: 2, dragon: 2, steel: 0.5 },
+  fighting: { normal: 2, ice: 2, poison: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 2, ghost: 0, dark: 2, steel: 2, fairy: 0.5 },
+  poison: { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0, fairy: 2 },
+  ground: { fire: 2, water: 1, grass: 0.5, electric: 2, poison: 2, flying: 0, bug: 0.5, rock: 2, steel: 2 },
+  flying: { grass: 2, electric: 0.5, fighting: 2, bug: 2, rock: 0.5, steel: 0.5 },
+  psychic: { fighting: 2, poison: 2, psychic: 0.5, dark: 0, steel: 0.5 },
+  bug: { fire: 0.5, grass: 2, fighting: 0.5, poison: 0.5, flying: 0.5, psychic: 2, ghost: 0.5, dark: 2, steel: 0.5, fairy: 0.5 },
+  rock: { fire: 2, ice: 2, fighting: 0.5, ground: 0.5, flying: 2, bug: 2, steel: 0.5 },
+  ghost: { normal: 0, psychic: 2, ghost: 2, dark: 0.5 },
+  dragon: { dragon: 2, steel: 0.5, fairy: 0 },
+  dark: { fighting: 0.5, psychic: 2, ghost: 2, dark: 0.5, fairy: 0.5 },
+  steel: { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
+  fairy: { fire: 0.5, fighting: 2, poison: 0.5, ground: 1, dragon: 2, dark: 2, steel: 0.5 }
+};
+
+function getMultiplier(moveType, defTypes) {
+  let mult = 1;
+  const attackMap = TYPE_CHART[moveType];
+  if (!attackMap) return 1;
+  defTypes.forEach(t => {
+    if (attackMap[t.type.name] !== undefined) mult *= attackMap[t.type.name];
+  });
+  return mult;
+}
+
+// Prepare fighter stats and fetch moves
+async function buildFighter(pokemon, isPlayer) {
+  const hpStat = pokemon.stats.find(s=>s.stat.name==="hp").base_stat;
+  const maxHp = hpStat + 60; // faux Lv50 HP calculation
+
+  // Fetch first 4 valid moves (with power) to make demo interesting
+  const moveUrls = [];
+  for (const m of pokemon.moves) {
+    if (moveUrls.length >= 4) break;
+    moveUrls.push(m.move.url);
+  }
+
+  const movesData = await Promise.all(moveUrls.map(url => fetch(url).then(r=>r.json())));
+  const activeMoves = movesData.map(m => ({
+    name: m.name,
+    type: m.type.name,
+    power: m.power || 40,
+    pp: m.pp || 15,
+    maxPp: m.pp || 15
+  }));
+
+  // Ensure they have fallback moves if needed
+  if (activeMoves.length === 0) {
+    activeMoves.push({ name: "tackle", type: "normal", power: 40, pp: 35, maxPp: 35 });
+  }
+
+  return {
+    ...pokemon,
+    maxHp,
+    currentHp: maxHp,
+    activeMoves,
+    isPlayer
+  };
+}
+
+// ── Calculate Damage ──
+function calculateDamage(move, attacker, defender) {
+  if (move.power === 0) return { damage: 0, mult: 1 };
+  
+  const atk = attacker.stats.find(s=>s.stat.name==="attack").base_stat;
+  const def = defender.stats.find(s=>s.stat.name==="defense").base_stat;
+  
+  const isStab = attacker.types.some(t=>t.type.name===move.type);
+  const stabMult = isStab ? 1.5 : 1;
+  const typeMult = getMultiplier(move.type, defender.types);
+  
+  const random = (Math.floor(Math.random() * (255 - 217 + 1)) + 217) / 255;
+  let damage = Math.floor(((((2 * 50 / 5) + 2) * move.power * atk / def) / 50 + 2) * stabMult * typeMult * random);
+  
+  return { damage: Math.max(1, damage), mult: typeMult };
+}
+
+// ── Update UI Status ──
+function updateArenaUI() {
+  // Opponent UI
+  arenaOppName.textContent = oppFighterState.name.toUpperCase();
+  arenaOppHpText.textContent = `${oppFighterState.currentHp}/${oppFighterState.maxHp}`;
+  const oppPct = Math.max(0, (oppFighterState.currentHp / oppFighterState.maxHp) * 100);
+  arenaOppHpFill.style.width = oppPct + "%";
+  arenaOppHpFill.style.background = oppPct > 50 ? "#78c840" : oppPct > 20 ? "#f8d030" : "#e8411a";
+  arenaOppSprite.src = oppFighterState.sprites.front_default || "";
+
+  // Player UI
+  arenaPlayerName.textContent = playerFighterState.name.toUpperCase();
+  arenaPlayerHpText.textContent = `${playerFighterState.currentHp}/${playerFighterState.maxHp}`;
+  const pPct = Math.max(0, (playerFighterState.currentHp / playerFighterState.maxHp) * 100);
+  arenaPlayerHpFill.style.width = pPct + "%";
+  arenaPlayerHpFill.style.background = pPct > 50 ? "#78c840" : pPct > 20 ? "#f8d030" : "#e8411a";
+  // Attempt to use back sprite
+  arenaPlayerSprite.src = playerFighterState.sprites.back_default || playerFighterState.sprites.front_default || "";
+}
+
+function typeMessage(text) {
+  arenaDialogueText.innerHTML = "";
+  let i = 0;
+  return new Promise(resolve => {
+    const int = setInterval(() => {
+      arenaDialogueText.innerHTML += text.charAt(i);
+      i++;
+      if (i >= text.length) {
+        clearInterval(int);
+        setTimeout(resolve, 800); // Wait a bit after text finishes
+      }
+    }, 20); // typing speed
+  });
+}
+
+function renderMoves() {
+  arenaMovesGrid.innerHTML = "";
+  playerFighterState.activeMoves.forEach((move, i) => {
+    const btn = document.createElement("button");
+    btn.className = "arena-move-btn";
+    btn.disabled = isBattleOver;
+    btn.innerHTML = `
+      <div class="move-header">
+        <span class="move-name">${move.name.toUpperCase()}</span>
+        <span class="move-pp">PP ${move.pp}/${move.maxPp}</span>
+      </div>
+      <span class="type-badge type-${move.type} move-type">${move.type.toUpperCase()}</span>
+    `;
+    btn.addEventListener("click", () => handlePlayerTurn(i));
+    arenaMovesGrid.appendChild(btn);
+  });
+}
+
+// ── Turn Logic ──
+async function handlePlayerTurn(moveIndex) {
+  if (isBattleOver) return;
+  const move = playerFighterState.activeMoves[moveIndex];
+  if (move.pp <= 0) return;
+  
+  // Disable move buttons while turn executes
+  Array.from(arenaMovesGrid.children).forEach(b => b.disabled = true);
+  arenaRunBtn.disabled = true;
+
+  move.pp--;
+  renderMoves();
+  
+  await executeAttack(playerFighterState, oppFighterState, move, arenaOppSprite);
+  if (isBattleOver) return;
+
+  await aiTurn();
+
+  if (!isBattleOver) {
+    Array.from(arenaMovesGrid.children).forEach(b => b.disabled = false);
+    arenaRunBtn.disabled = false;
+    typeMessage(`What will ${playerFighterState.name.toUpperCase()} do?`);
+  }
+}
+
+async function aiTurn() {
+  // Simple AI: pick move that does most damage
+  let bestMove = oppFighterState.activeMoves[0];
+  let maxDmg = -1;
+
+  oppFighterState.activeMoves.forEach(m => {
+    if (m.pp <= 0) return;
+    const { damage } = calculateDamage(m, oppFighterState, playerFighterState);
+    if (damage > maxDmg) { maxDmg = damage; bestMove = m; }
+  });
+
+  bestMove.pp--;
+  await executeAttack(oppFighterState, playerFighterState, bestMove, arenaPlayerSprite);
+}
+
+async function executeAttack(attacker, defender, move, defenderSpriteEl) {
+  await typeMessage(`${attacker.name.toUpperCase()} used ${move.name.toUpperCase()}!`);
+  
+  const { damage, mult } = calculateDamage(move, attacker, defender);
+  defender.currentHp = Math.max(0, defender.currentHp - damage);
+  
+  // Animate sprite hit
+  defenderSpriteEl.classList.add("shake-anim");
+  setTimeout(() => defenderSpriteEl.classList.remove("shake-anim"), 300);
+
+  updateArenaUI();
+
+  if (mult > 1) {
+    await typeMessage("It's super effective!");
+  } else if (mult < 1) {
+    await typeMessage("It's not very effective...");
+  }
+
+  if (defender.currentHp === 0) {
+    isBattleOver = true;
+    defenderSpriteEl.classList.add("fainted");
+    await typeMessage(`${defender.name.toUpperCase()} fainted!`);
+    await typeMessage(attacker.isPlayer ? "YOU WIN!" : "YOU BLACKED OUT!");
+  }
+}
+
+// ── Start Battle ──
+async function initBattle() {
+  if (!playerActive || !opponentActive) return;
+  
+  setBattleLoading(true, "PREPARING ARENA…");
+  try {
+    playerFighterState = await buildFighter(playerActive, true);
+    oppFighterState = await buildFighter(opponentActive, false);
+    
+    isBattleOver = false;
+    arenaOppSprite.classList.remove("fainted");
+    arenaPlayerSprite.classList.remove("fainted");
+    
+    updateArenaUI();
+    renderMoves();
+    
+    battleSetupContainer.classList.add("hidden");
+    battleArenaContainer.classList.remove("hidden");
+    
+    await typeMessage(`Rival sent out ${oppFighterState.name.toUpperCase()}!`);
+    await typeMessage(`Go! ${playerFighterState.name.toUpperCase()}!`);
+    await typeMessage(`What will ${playerFighterState.name.toUpperCase()} do?`);
+
+    arenaRunBtn.disabled = false;
+  } catch (err) {
+    showBattleError("FAILED TO START BATTLE.");
+    console.error(err);
+  } finally {
+    setBattleLoading(false);
+  }
+}
+
+fightBtn.addEventListener("click", initBattle);
+
+arenaRunBtn.addEventListener("click", async () => {
+  if (isBattleOver) return;
+  arenaRunBtn.disabled = true;
+  Array.from(arenaMovesGrid.children).forEach(b => b.disabled = true);
+  await typeMessage("Got away safely!");
+  
+  setTimeout(() => {
+    battleArenaContainer.classList.add("hidden");
+    battleSetupContainer.classList.remove("hidden");
+  }, 1500);
+});
